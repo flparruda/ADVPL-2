@@ -1,0 +1,68 @@
+//EXERCICIO 5
+
+
+#INCLUDE "PROTHEUS.CH"
+#INCLUDE "REPORT.CH"
+
+
+USER FUNCTION Exec5()
+
+Local cPerg := "SPLOBJ13"
+Private oReport, oSX5
+/*
+MV_PAR01 - TABELA DE
+MV_PAR02 - TABELA ATE
+
+IF !PERGUNTE(cPerg,.T.,"Parametros Tabelas")
+    Msgalert("Processo cancelado pelo usuario!")
+    RETURN
+ENDIF
+*/
+
+PERGUNTE(cPerg,.F.)
+
+DEFINE REPORT oReport NAME "SPLOBJ13" TITLE "Tabela SX5" ;
+                    PARAMETER CPERG ACTION {|oReport| PrintReport(oReport, oSX5)}
+
+DEFINE SECTION  oSX5 OF oReport TITLE "Tabela SX5" TABLES "SX5"
+DEFINE CELL oCel01 NAME "X5_TABELA" OF oSX5 ALIAS "SX5" 
+DEFINE CELL oCel02 NAME "X5_CHAVE"  OF oSX5 ALIAS "SX5" 
+DEFINE CELL oCel03 NAME "X5_DESCRI" OF oSX5 ALIAS "SX5" 
+
+oReport:PrintDialog()
+
+RETURN
+
+
+STATIC FUNCTION PrintReport(oReport, oSX5)
+	LOCAL cAlias1 := GetNextAlias() 
+	LOCAL cQuery1 := ""
+
+
+	BEGIN REPORT QUERY oSX5
+	
+	BEGINSQL Alias cAlias1
+	
+		SELECT	*
+		FROM 	%Table:SX5% SX5
+		WHERE 	SX5.X5_FILIAL = %XFILIAL:SX5% AND SX5.%notDel%
+		  AND   SX5.X5_TABELA BETWEEN %EXP:MV_PAR01% AND %EXP:MV_PAR02% 
+		ORDER BY X5_TABELA, X5_CHAVE
+	
+	ENDSQL
+	
+	END REPORT QUERY oSX5
+
+    cQuery1 := GETLASTQUERY()[2]
+    MEMOWRITE("C:\TEMP\SPLOBJ13.SQL",cQuery1)
+
+	oSX5:Print()       
+	 
+RETURN
+
+
+
+
+
+
+
